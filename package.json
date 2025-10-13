@@ -4,7 +4,7 @@
   "description": "Servidor para compartir addons de Minecraft",
   "main": "server.js",
   "engines": {
-    "node": ">=18.0.0",
+    "node": "24.x",
     "npm": ">=9.0.0"
   },
   "scripts": {
