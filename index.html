@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MC ADDONS - Share Addon</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Press Start 2P', 'Courier New', monospace;
+      background: #1a1a1a;
+      min-height: 100vh;
+      padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        repeating-linear-gradient(0deg, transparent, transparent 15px, rgba(0, 255, 0, 0.03) 15px, rgba(0, 255, 0, 0.03) 16px),
+        repeating-linear-gradient(90deg, transparent, transparent 15px, rgba(0, 255, 0, 0.03) 15px, rgba(0, 255, 0, 0.03) 16px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .particle {
+      position: fixed;
+      width: 8px;
+      height: 8px;
+      background: #00ff00;
+      box-shadow: 0 0 10px #00ff00;
+      animation: float-particle 8s infinite;
+      pointer-events: none;
+      opacity: 0.3;
+    }
+
+    @keyframes float-particle {
+      0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+      10% { opacity: 0.3; }
+      90% { opacity: 0.3; }
+      100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header {
+      background: linear-gradient(180deg, #3c3c3c 0%, #2a2a2a 100%);
+      border: 4px solid #000;
+      border-bottom: 4px solid #1a1a1a;
+      box-shadow: 0 6px 0 #000, inset 0 2px 0 rgba(255, 255, 255, 0.3);
+      padding: 30px 20px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #5ba10b;
+      text-shadow: 3px 3px 0 #000;
+      font-size: 24px;
+      font-weight: normal;
+      letter-spacing: 2px;
+      margin-bottom: 15px;
+      line-height: 1.6;
+    }
+
+    .subtitle {
+      color: #aaa;
+      font-size: 10px;
+      text-shadow: 2px 2px 0 #000;
+      line-height: 1.8;
+    }
+
+    .header-icon {
+      width: 24px; 
+      height: 24px;
+      vertical-align: middle; 
+      margin: 0 8px;
+      image-rendering: pixelated;
+    }
+
+    .header-icon:hover {
+      filter: blur(1px) brightness(2);
+      transition: filter 3s ease;
+    }
+
+    .catalog-link {
+      display: inline-block;
+      margin-top: 20px;
+      background: linear-gradient(180deg, #5dbd5d 0%, #4a9d4a 100%);
+      border: 3px solid #000;
+      color: #fff;
+      padding: 12px 20px;
+      text-decoration: none;
+      font-size: 10px;
+      text-shadow: 2px 2px 0 #000;
+      box-shadow: 0 4px 0 #2d6b2d;
+      transition: all 0.1s;
+    }
+
+    .catalog-link:hover {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #2d6b2d;
+    }
+
+    .form-container {
+      background: linear-gradient(180deg, #3c3c3c 0%, #2a2a2a 100%);
+      border: 4px solid #000;
+      border-bottom: 6px solid #1a1a1a;
+      padding: 30px;
+      box-shadow: 0 8px 0 #000, inset 0 2px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .form-group {
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      color: #ffff00;
+      font-size: 11px;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 0 #000;
+      line-height: 1.6;
+    }
+
+    .required {
+      color: #ff5555;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      background: #1a1a1a;
+      border: 3px solid #000;
+      border-bottom: 4px solid #0a0a0a;
+      color: #fff;
+      padding: 12px;
+      font-size: 10px;
+      font-family: 'Press Start 2P', monospace;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+      transition: all 0.2s;
+      line-height: 1.6;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #4a9d4a;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 0 10px rgba(74, 157, 74, 0.5);
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .upload-zone {
+      background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+      border: 4px dashed #4a9d4a;
+      padding: 30px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      margin-bottom: 15px;
+    }
+
+    .upload-zone:hover {
+      border-color: #5dbd5d;
+      background: linear-gradient(180deg, #3a3a3a 0%, #2a2a2a 100%);
+      transform: scale(1.02);
+    }
+
+    .upload-zone.dragover {
+      border-color: #ffff00;
+      background: linear-gradient(180deg, #3a4a2a 0%, #2a3a1a 100%);
+      box-shadow: inset 0 0 30px rgba(255, 255, 0, 0.2);
+    }
+
+    .upload-icon {
+      font-size: 48px;
+      display: block;
+      margin-bottom: 15px;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .upload-text {
+      color: #aaa;
+      font-size: 9px;
+      text-shadow: 1px 1px 0 #000;
+      line-height: 1.8;
+    }
+
+    .upload-text strong {
+      color: #4a9d4a;
+    }
+
+    .file-list {
+      margin-top: 15px;
+    }
+
+    .file-item {
+      background: #1a1a1a;
+      border: 2px solid #000;
+      padding: 10px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #4a9d4a;
+      font-size: 9px;
+      box-shadow: 0 2px 0 #000;
+      line-height: 1.6;
+    }
+
+    .file-item button {
+      background: #8b0000;
+      border: 2px solid #000;
+      color: #fff;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 8px;
+      text-shadow: 1px 1px 0 #000;
+      font-family: 'Press Start 2P', monospace;
+    }
+
+    .file-item button:hover {
+      background: #a00000;
+    }
+
+    .mc-button {
+      background: linear-gradient(180deg, #5dbd5d 0%, #4a9d4a 100%);
+      border: 3px solid #000;
+      border-bottom: 5px solid #2d6b2d;
+      color: #fff;
+      padding: 15px 30px;
+      font-size: 12px;
+      font-family: 'Press Start 2P', monospace;
+      cursor: pointer;
+      width: 100%;
+      text-shadow: 2px 2px 0 #000;
+      box-shadow: 0 5px 0 #2d6b2d;
+      transition: all 0.1s;
+      margin-top: 20px;
+    }
+
+    .mc-button:hover {
+      background: linear-gradient(180deg, #6dcd6d 0%, #5aad5a 100%);
+      transform: translateY(2px);
+      box-shadow: 0 3px 0 #2d6b2d;
+    }
+
+    .mc-button:active {
+      transform: translateY(5px);
+      box-shadow: 0 0 0 #2d6b2d;
+    }
+
+    .mc-button:disabled {
+      background: linear-gradient(180deg, #5a5a5a 0%, #3c3c3c 100%);
+      cursor: not-allowed;
+      opacity: 0.6;
+      box-shadow: 0 5px 0 #1a1a1a;
+    }
+
+    .status {
+      margin-top: 20px;
+      padding: 15px;
+      border: 3px solid #000;
+      display: none;
+      text-align: center;
+      font-size: 10px;
+      text-shadow: 2px 2px 0 #000;
+      line-height: 1.8;
+    }
+
+    .status.success {
+      background: linear-gradient(180deg, #5dbd5d 0%, #4a9d4a 100%);
+      color: #fff;
+      display: block;
+    }
+
+    .status.error {
+      background: linear-gradient(180deg, #d94545 0%, #b83535 100%);
+      color: #fff;
+      display: block;
+    }
+
+    .images-preview {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .image-preview-item {
+      position: relative;
+      aspect-ratio: 1;
+      background: #1a1a1a;
+      border: 3px solid #000;
+      overflow: hidden;
+    }
+
+    .image-preview-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      image-rendering: pixelated;
+    }
+
+    .image-preview-item button {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: #8b0000;
+      border: 2px solid #000;
+      color: #fff;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 8px;
+      text-shadow: 1px 1px 0 #000;
+      font-family: 'Press Start 2P', monospace;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .help-text {
+      color: #888;
+      font-size: 8px;
+      margin-top: 8px;
+      text-shadow: 1px 1px 0 #000;
+      line-height: 1.8;
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 16px;
+      }
+
+      .form-container {
+        padding: 20px;
+      }
+
+      label {
+        font-size: 9px;
+      }
+
+      input[type="text"],
+      textarea {
+        font-size: 9px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+  <div class="particle" style="left: 30%; animation-delay: 2s;"></div>
+  <div class="particle" style="left: 50%; animation-delay: 4s;"></div>
+  <div class="particle" style="left: 70%; animation-delay: 1s;"></div>
+  <div class="particle" style="left: 90%; animation-delay: 3s;"></div>
+
+  <div class="container">
+    <div class="header">
+      <h1>
+        <img src="mc.jpg" alt="Minecraft" class="header-icon">
+        MC ADDONS
+        <img src="mc.jpg" alt="Minecraft" class="header-icon">
+      </h1>
+      <div class="subtitle">Comparte tus addons con la comunidad</div>
+      <a href="catalog.html" class="catalog-link">
+        Ver Addons
+      </a>
+    </div>
+
+    <div class="form-container">
+      <form id="uploadCompleteForm">
+        <div class="form-group">
+          <label>Archivo del Addon <span class="required">*</span></label>
+          <div class="upload-zone" id="addonUploadZone">
+            <span class="upload-icon">📦</span>
+            <div class="upload-text">
+              <strong>Click aqui</strong> o arrastra<br>tu archivo .mcaddon o .zip
+            </div>
+            <input type="file" id="addonFile" accept=".mcaddon,.zip,.mcpack" required />
+          </div>
+          <div class="file-list" id="addonFileList"></div>
+        </div>
+
+        <div class="form-group">
+          <label>Nombre del Addon <span class="required">*</span></label>
+          <input type="text" id="addonName" placeholder="Super Weapons Pack" required />
+        </div>
+
+        <div class="form-group">
+          <label>Autor <span class="required">*</span></label>
+          <input type="text" id="addonAuthor" placeholder="Tu nombre o nickname" required />
+        </div>
+
+        <div class="form-group">
+          <label>Descripcion <span class="required">*</span></label>
+          <textarea id="addonDescription" placeholder="Describe tu addon..." required></textarea>
+          <div class="help-text">Minimo 50 caracteres</div>
+        </div>
+
+        <div class="form-group">
+          <label>Imagenes (Opcional)</label>
+          <div class="upload-zone" id="imagesUploadZone">
+            <span class="upload-icon">🖼️</span>
+            <div class="upload-text">
+              <strong>Click aqui</strong> o arrastra<br>hasta 5 imagenes
+            </div>
+            <input type="file" id="addonImages" accept="image/*" multiple />
+          </div>
+          <div class="help-text">PNG JPG o GIF - Maximo 5 imagenes</div>
+          <div class="images-preview" id="imagesPreview"></div>
+        </div>
+
+        <button type="submit" class="mc-button">SUBIR ADDON</button>
+      </form>
+      <div class="status" id="statusComplete"></div>
+    </div>
+  </div>
+
+  <script>
+    let selectedImages = [];
+    let addonFile = null;
+
+    setupUploadZone('addonUploadZone', 'addonFile', 'addonFileList', (file) => {
+      addonFile = file;
+    });
+
+    setupImageUploadZone('imagesUploadZone', 'addonImages', 'imagesPreview');
+
+    function setupUploadZone(zoneId, inputId, listId, callback) {
+      const zone = document.getElementById(zoneId);
+      const input = document.getElementById(inputId);
+      const list = document.getElementById(listId);
+
+      zone.addEventListener('click', () => input.click());
+
+      input.addEventListener('change', () => {
+        if (input.files[0]) {
+          displayFile(input.files[0], list);
+          if (callback) callback(input.files[0]);
+        }
+      });
+
+      zone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        zone.classList.add('dragover');
+      });
+
+      zone.addEventListener('dragleave', () => {
+        zone.classList.remove('dragover');
+      });
+
+      zone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        zone.classList.remove('dragover');
+        
+        if (e.dataTransfer.files.length) {
+          input.files = e.dataTransfer.files;
+          displayFile(e.dataTransfer.files[0], list);
+          if (callback) callback(e.dataTransfer.files[0]);
+        }
+      });
+    }
+
+    function displayFile(file, listElement) {
+      listElement.innerHTML = `
+        <div class="file-item">
+          <span>${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+          <button type="button" onclick="removeFile('${listElement.id}')">X</button>
+        </div>
+      `;
+    }
+
+    function removeFile(listId) {
+      document.getElementById(listId).innerHTML = '';
+      document.getElementById('addonFile').value = '';
+      addonFile = null;
+    }
+
+    function setupImageUploadZone(zoneId, inputId, previewId) {
+      const zone = document.getElementById(zoneId);
+      const input = document.getElementById(inputId);
+      const preview = document.getElementById(previewId);
+
+      zone.addEventListener('click', () => input.click());
+
+      input.addEventListener('change', () => {
+        handleImageFiles(input.files, preview);
+      });
+
+      zone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        zone.classList.add('dragover');
+      });
+
+      zone.addEventListener('dragleave', () => {
+        zone.classList.remove('dragover');
+      });
+
+      zone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        zone.classList.remove('dragover');
+        
+        if (e.dataTransfer.files.length) {
+          handleImageFiles(e.dataTransfer.files, preview);
+        }
+      });
+    }
+
+    function handleImageFiles(files, previewElement) {
+      if (selectedImages.length + files.length > 5) {
+        alert('Maximo 5 imagenes permitidas');
+        return;
+      }
+
+      Array.from(files).forEach(file => {
+        if (file.type.startsWith('image/')) {
+          selectedImages.push(file);
+          const reader = new FileReader();
+          
+          reader.onload = (e) => {
+            const div = document.createElement('div');
+            div.className = 'image-preview-item';
+            div.innerHTML = `
+              <img src="${e.target.result}" alt="Preview" />
+              <button type="button" onclick="removeImage(${selectedImages.length - 1})">X</button>
+            `;
+            previewElement.appendChild(div);
+          };
+          
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+
+    function removeImage(index) {
+      selectedImages.splice(index, 1);
+      updateImagePreview();
+    }
+
+    function updateImagePreview() {
+      const preview = document.getElementById('imagesPreview');
+      preview.innerHTML = '';
+      
+      selectedImages.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const div = document.createElement('div');
+          div.className = 'image-preview-item';
+          div.innerHTML = `
+            <img src="${e.target.result}" alt="Preview" />
+            <button type="button" onclick="removeImage(${index})">X</button>
+          `;
+          preview.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    document.getElementById('uploadCompleteForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const name = document.getElementById('addonName').value.trim();
+      const author = document.getElementById('addonAuthor').value.trim();
+      const description = document.getElementById('addonDescription').value.trim();
+      const status = document.getElementById('statusComplete');
+      const submitBtn = e.target.querySelector('.mc-button');
+
+      if (description.length < 50) {
+        showStatus(status, 'error', 'La descripcion debe tener al menos 50 caracteres');
+        return;
+      }
+
+      if (!addonFile) {
+        showStatus(status, 'error', 'Debes seleccionar un archivo');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', addonFile);
+      formData.append('name', name);
+      formData.append('author', author);
+      formData.append('description', description);
+      formData.append('type', 'complete');
+      
+      selectedImages.forEach((img, index) => {
+        formData.append(`image${index}`, img);
+      });
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'SUBIENDO...';
+
+      try {
+        const res = await fetch('/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          showStatus(status, 'success', 'Addon subido exitosamente!');
+          e.target.reset();
+          selectedImages = [];
+          addonFile = null;
+          document.getElementById('addonFileList').innerHTML = '';
+          document.getElementById('imagesPreview').innerHTML = '';
+          
+          setTimeout(() => {
+            window.location.href = 'catalog.html';
+          }, 2000);
+        } else if (res.status === 409 && data.duplicate) {
+          showStatus(status, 'error', 'Este addon ya existe. No se permiten duplicados.');
+        } else {
+          showStatus(status, 'error', data.error || 'Error al subir el addon');
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        showStatus(status, 'error', 'Error de conexion con el servidor');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'SUBIR ADDON';
+      }
+    });
+
+    function showStatus(element, type, message) {
+      element.className = `status ${type}`;
+      element.textContent = message;
+      
+      setTimeout(() => {
+        element.className = 'status';
+      }, 5000);
+    }
+  </script>
+
+  <canvas id="bgCubes"></canvas>
+  <script>
+    const canvas = document.getElementById("bgCubes");
+    const ctx = canvas.getContext("2d");
+
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+
+    window.addEventListener("resize", () => {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+    });
+
+    class MorphShape {
+      constructor() {
+        this.size = 10 + Math.random() * 30;
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.vx = (Math.random() - 0.5) * 2;
+        this.vy = (Math.random() - 0.5) * 2;
+        this.rotation = Math.random() * Math.PI * 2;
+        this.rotationSpeed = (Math.random() - 0.5) * 0.05;
+        this.color = `hsl(${Math.random() * 120 + 90}, 70%, 50%)`;
+        this.morphProgress = Math.random() * Math.PI * 2;
+        this.morphSpeed = 0.01 + Math.random() * 0.02;
+      }
+
+      draw(ctx) {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation);
+        ctx.fillStyle = this.color;
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 2;
+
+        const t = (Math.sin(this.morphProgress) + 1) / 2;
+
+        if (t < 0.33) {
+          this.drawSquare(ctx);
+        } else if (t < 0.66) {
+          this.drawTriangle(ctx);
+        } else {
+          this.drawCircle(ctx);
+        }
+
+        ctx.restore();
+      }
+
+      drawSquare(ctx) {
+        const s = this.size;
+        ctx.beginPath();
+        ctx.moveTo(-s / 2, -s / 2);
+        ctx.lineTo(s / 2, -s / 2);
+        ctx.lineTo(s / 2, s / 2);
+        ctx.lineTo(-s / 2, s / 2);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      }
+
+      drawTriangle(ctx) {
+        const s = this.size;
+        ctx.beginPath();
+        ctx.moveTo(0, -s / 1.2);
+        ctx.lineTo(s / 1.1, s / 1.3);
+        ctx.lineTo(-s / 1.1, s / 1.3);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      }
+
+      drawCircle(ctx) {
+        ctx.beginPath();
+        ctx.arc(0, 0, this.size / 1.4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.rotation += this.rotationSpeed;
+        this.morphProgress += this.morphSpeed;
+
+        if (this.x - this.size / 2 < 0 || this.x + this.size / 2 > width) {
+          this.vx *= -1;
+        }
+        if (this.y - this.size / 2 < 0 || this.y + this.size / 2 > height) {
+          this.vy *= -1;
+        }
+      }
+    }
+
+    const shapes = Array.from({ length: 45 }, () => new MorphShape());
+
+    function animate() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+      ctx.fillRect(0, 0, width, height);
+
+      shapes.forEach(shape => {
+        shape.update();
+        shape.draw(ctx);
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    canvas.style.position = "fixed";
+    canvas.style.top = "0";
+    canvas.style.left = "0";
+    canvas.style.zIndex = "0";
+    canvas.style.pointerEvents = "none";
+  </script>
+</body>
+</html>

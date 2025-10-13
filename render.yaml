@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: mc-addons
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+    disk:
+      name: uploads-storage
+      mountPath: /opt/render/project/src/uploads
+      sizeGB: 1
