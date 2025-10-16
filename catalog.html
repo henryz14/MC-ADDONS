@@ -239,20 +239,26 @@
       -webkit-box-orient: vertical;
     }
 
-    .addon-meta {
+    .image-gallery {
       display: flex;
-      gap: 12px;
-      margin-bottom: 12px;
-      font-size: 7px;
-      color: #888;
-      flex-wrap: wrap;
-      line-height: 1.6;
+      gap: 5px;
+      margin-top: 10px;
+      overflow-x: auto;
+      margin-bottom: 15px;
     }
 
-    .addon-meta span {
-      display: flex;
-      align-items: center;
-      gap: 4px;
+    .image-gallery img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border: 2px solid #000;
+      cursor: pointer;
+      transition: border-color 0.2s;
+      image-rendering: pixelated;
+    }
+
+    .image-gallery img:hover {
+      border-color: #5dbd5d;
     }
 
     .addon-actions {
@@ -333,27 +339,6 @@
       line-height: 1.8;
     }
 
-    .image-gallery {
-      display: flex;
-      gap: 5px;
-      margin-top: 10px;
-      overflow-x: auto;
-    }
-
-    .image-gallery img {
-      width: 60px;
-      height: 60px;
-      object-fit: cover;
-      border: 2px solid #000;
-      cursor: pointer;
-      transition: border-color 0.2s;
-      image-rendering: pixelated;
-    }
-
-    .image-gallery img:hover {
-      border-color: #5dbd5d;
-    }
-
     .hash-badge {
       background: #1a1a1a;
       border: 2px solid #4a9d4a;
@@ -364,6 +349,43 @@
       display: inline-block;
       margin-top: 5px;
       text-shadow: 1px 1px 0 #000;
+    }
+
+    .addon-details {
+      background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+      border: 3px solid #5dbd5d;
+      border-top: none;
+      padding: 15px;
+      display: none;
+      font-size: 8px;
+      line-height: 1.8;
+    }
+
+    .addon-details.active {
+      display: block;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      color: #aaa;
+    }
+
+    .detail-label {
+      color: #5dbd5d;
+      font-weight: bold;
+      min-width: 120px;
+    }
+
+    .detail-value {
+      color: #fff;
+      text-align: right;
+      word-break: break-all;
+    }
+
+    .btn-details-toggle {
+      width: 100%;
     }
 
     @media (max-width: 768px) {
@@ -415,14 +437,6 @@
       <div class="stat-item">
         <div class="stat-number" id="totalAddons">0</div>
         <div class="stat-label">Total Addons</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-number" id="totalDownloads">0</div>
-        <div class="stat-label">Total Descargas</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-number" id="totalViews">0</div>
-        <div class="stat-label">Total Vistas</div>
       </div>
     </div>
 
@@ -509,15 +523,6 @@
               <div class="addon-author">${escapeHtml(addon.author || 'Anonimo')}</div>
               <div class="addon-description">${escapeHtml(addon.description)}</div>
               ${imageGallery}
-              <div class="addon-meta">
-                <span>${addon.downloads || 0} descargas</span>
-                <span>${addon.views || 0} vistas</span>
-                <span>${fileSize} MB</span>
-              </div>
-              <div class="addon-meta">
-                <span>${uploadDate}</span>
-                <span class="hash-badge" title="Hash unico: ${addon.fileHash}">${shortHash}</span>
-              </div>
               <div class="addon-actions">
                 <a href="${addon.filePath}" 
                    class="btn-download" 
@@ -525,9 +530,31 @@
                    download="${addon.originalName || addon.fileName}">
                   DESCARGAR
                 </a>
-                <button class="btn-details" onclick="showDetails('${addon.id}')">
+                <button class="btn-details btn-details-toggle" onclick="toggleDetails('${addon.id}')">
                   INFO
                 </button>
+              </div>
+            </div>
+            <div class="addon-details" id="details-${addon.id}">
+              <div class="detail-row">
+                <div class="detail-label">Subido:</div>
+                <div class="detail-value">${uploadDate}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">Tamano:</div>
+                <div class="detail-value">${fileSize} MB</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">Descargas:</div>
+                <div class="detail-value">${addon.downloads || 0}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">Vistas:</div>
+                <div class="detail-value">${addon.views || 0}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">Hash:</div>
+                <div class="detail-value" title="Hash completo: ${addon.fileHash}">${addon.fileHash ? addon.fileHash.substring(0, 16) + '...' : 'N/A'}</div>
               </div>
             </div>
           </div>
@@ -545,6 +572,13 @@
       const mainImage = document.getElementById(`mainImage-${addonId}`);
       if (mainImage) {
         mainImage.innerHTML = `<img src="${src}" alt="Preview">`;
+      }
+    }
+
+    function toggleDetails(addonId) {
+      const details = document.getElementById(`details-${addonId}`);
+      if (details) {
+        details.classList.toggle('active');
       }
     }
 
@@ -567,25 +601,6 @@
       }
     }
 
-    function showDetails(addonId) {
-      const addon = allAddons.find(a => a.id === addonId);
-      if (addon) {
-        const uploadDate = addon.uploadDate ? new Date(addon.uploadDate).toLocaleString('es-ES') : 'N/A';
-        const fileSize = addon.size ? (addon.size / 1024 / 1024).toFixed(2) : '0.00';
-        
-        alert(
-          `${addon.name}\n\n` +
-          `Autor: ${addon.author || 'Anonimo'}\n\n` +
-          `Descripcion:\n${addon.description}\n\n` +
-          `Subido: ${uploadDate}\n` +
-          `Tamano: ${fileSize} MB\n` +
-          `Descargas: ${addon.downloads || 0}\n` +
-          `Vistas: ${addon.views || 0}\n` +
-          `Hash: ${addon.fileHash ? addon.fileHash.substring(0, 16) + '...' : 'N/A'}`
-        );
-      }
-    }
-
     async function loadStats() {
       try {
         const res = await fetch('/stats');
@@ -593,8 +608,6 @@
         
         if (data.success && data.stats) {
           document.getElementById('totalAddons').textContent = data.stats.totalAddons || 0;
-          document.getElementById('totalDownloads').textContent = data.stats.totalDownloads || 0;
-          document.getElementById('totalViews').textContent = data.stats.totalViews || 0;
         }
       } catch (error) {
         console.error('Error al cargar estadisticas:', error);
